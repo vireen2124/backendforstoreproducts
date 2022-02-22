@@ -49,15 +49,18 @@ const getAllProducts=async (req,res)=>{
             queryObject.name={ $regex:name , $options:"i" }
         }
         if(price){
-            
+            //if there is something in the price then i will use the regex replace method
+            //to convert something user friendly to mongo friendly
             let numeri= price.replace(reGex,(match)=>{
                 return `${myOperatorRegex[match]}-`
             }).split("-")
             queryObject.price={
                    [numeri[0]] :Number(numeri[1]),
-            }
+            } 
         }
         if(rating){
+             //if there is something in the rating then i will use the regex replace method
+            //to convert something user friendly to mongo friendly
             let numeri= rating.replace(reGex,(match)=>{
                 return `${myOperatorRegex[match]}-`
             }).split("-")
@@ -79,7 +82,11 @@ const getAllProducts=async (req,res)=>{
         //the limit and sort values will be used here
         //probably use the select method to choose what to send to the frontend .select
         //("name price ...")
-        const queryProducts=await ProductsModel.find(queryObject).sort(newSort).limit(productLimit).skip(skip);
+        const queryProducts=await ProductsModel.find(queryObject)
+        .sort(newSort)
+        .limit(productLimit)
+        .skip(skip)
+        .select("name price");
         //if there is no matching results
         if(queryProducts.length === 0){
                return res.status(400).json({success:false,message:{nbHits:queryProducts.length,queryProducts:queryProducts}})  
